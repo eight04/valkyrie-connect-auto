@@ -27,6 +27,7 @@ class PopupHandler:
     def add(self, name):
         def _(f):
             self.handlers[name] = f
+            return f
         return _
 
     def handle(self, r):

@@ -18,8 +18,9 @@ def start(args):
         sleep(0.5)
 
     @h.add("battle-join-error")
+    @h.add("battle-join-error-2")
     def _(m):
-        click(m, y=0.8)
+        click(m, y=7/8)
 
     for _i in range(args.loop):
         try:
