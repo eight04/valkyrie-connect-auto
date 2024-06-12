@@ -1,4 +1,5 @@
 astroid==3.2.2
+build==1.2.1
 colorama==0.4.6
 dill==0.3.8
 isort==5.13.2
@@ -16,6 +17,7 @@ PyGetWindow==0.0.9
 pylint==3.2.3
 PyMsgBox==1.0.9
 pyperclip==1.8.2
+pyproject_hooks==1.1.0
 PyRect==0.2.0
 PyScreeze==0.1.30
 pytesseract==0.3.10
