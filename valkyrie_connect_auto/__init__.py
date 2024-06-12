@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 
-__VERSION__ = "0.0.0"
+__version__ = "0.0.0"
 
 def cli():
     parser = ArgumentParser(prog="valkyrie-connect-auto", description="Valkyrie Connect Automation")
