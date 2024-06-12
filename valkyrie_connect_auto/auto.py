@@ -80,7 +80,10 @@ def wait_all(name, timeout=10, handler=None, confidence=0.9, key=BOX_KEY) -> lis
 
 def click(r, x=0.5, y=0.5, **kwargs):
     """Click on the center of the box"""
-    pyautogui.click(r.box.left + r.box.width * x, r.box.top + r.box.height * y, **kwargs)
+    target_x = r.box.left + r.box.width * x
+    target_y = r.box.top + r.box.height * y
+    print(f"[click] ({target_x}, {target_y})")
+    pyautogui.click(target_x, target_y, **kwargs)
     sleep(0.25)
 
 def box_to_bound(box: Box, offset, size) -> tuple:

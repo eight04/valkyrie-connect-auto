@@ -29,6 +29,8 @@ def start(args):
             # sometimes the starting process will be interrupted by the popup and we have to start from scratch
             if err.image_name == "battle":
                 raise
+        except KeyboardInterrupt:
+            break
 
 def loop(handler):
     click(wait("battle", handler=handler, timeout=300))
@@ -70,6 +72,7 @@ def start_join(r):
 
     h = PopupHandler()
     @h.add("battle-join-error")
+    @h.add("battle-join-error-2")
     def _(m):
         click(m, y=0.8)
         click(wait_all("battle-join", key=lambda b: b.top)[-1])
