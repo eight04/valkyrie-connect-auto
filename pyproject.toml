@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "valkyrie-connect-auto"
-version = "0.0.0"
+version = "0.1.0"
 description = "A tool to automate Valkyrie Connect"
 authors = [{name = "eight", email = "eight04@gmail.com"}]
 # https://pypi.org/classifiers/
