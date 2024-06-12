@@ -1,0 +1,2 @@
+pylint==3.2.3
+pyxcute==0.8.1

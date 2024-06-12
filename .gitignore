@@ -1,0 +1,10 @@
+node_modules
+.venv
+build
+dist
+*.egg-info
+*.egg
+*.pyc
+*.pyo
+*.pyd
+
