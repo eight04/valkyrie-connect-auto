@@ -2,6 +2,7 @@ import importlib.resources
 from time import sleep
 from datetime import datetime, timedelta
 from collections import namedtuple
+from typing import Callable, Any
 
 import pyautogui
 import pyscreeze
@@ -22,35 +23,51 @@ class NotFound(ValueError):
 
 class PopupHandler:
     def __init__(self):
-        self.handlers = {}
+        self.handlers = []
 
-    def add(self, name):
+    def add(self, name, **kwargs):
         def _(f):
-            self.handlers[name] = f
+            self.handlers.append((name, f, kwargs))
             return f
         return _
 
     def handle(self, r):
-        for name, handler in self.handlers.items():
+        for (name, f, kwargs) in self.handlers:
             try:
-                r = find(r, name)
+                r = find(r, name, **kwargs)
             except (pyscreeze.ImageNotFoundException, pyautogui.ImageNotFoundException):
                 pass
             else:
                 print(f"[PopupHandler] {name}")
-                handler(r)
+                f(r)
                 return True
         return False
 
-def _locate(im, im_screen, confidence):
-    return Match(im_screen, pyautogui.locate(im, im_screen, confidence=confidence))
+def region_to_box(size, region):
+    width, height = size
+    left, top, right, bottom = region
+    return (
+        round(left * width),
+        round(top * height),
+        round((right - left) * width),
+        round((bottom - left) * height)
+        )
 
-def wait(name, timeout=10, handler=None, confidence=0.9) -> Match:
+def wait(name, timeout=10, handler=None, confidence=0.9, region=(0, 0, 1, 1)) -> Match:
     """Wait and return a match on the screen"""
     print(f"[wait] {name}")
-    return _wait(name, timeout=timeout, handler=handler, confidence=confidence)
+    def _locate(im, im_screen):
+        box = pyautogui.locate(
+            im,
+            im_screen,
+            confidence=confidence,
+            region=region_to_box(pyautogui.size(), region)
+            )
+        return Match(im_screen, box)
+    return _wait(name, timeout=timeout, handler=handler, _locate=_locate)
 
-def _wait(name, timeout, handler, confidence, _locate=_locate):
+def _wait(name, timeout, handler, _locate: Callable[[Image.Image, Image.Image], Any]):
+    assert _locate
     start_time = datetime.now()
     end_time = start_time + timedelta(seconds=timeout)
     err = None
@@ -58,7 +75,7 @@ def _wait(name, timeout, handler, confidence, _locate=_locate):
         while datetime.now() < end_time:
             im_screen = pyautogui.screenshot()
             try:
-                return _locate(im, im_screen, confidence)
+                return _locate(im, im_screen)
             except (pyscreeze.ImageNotFoundException, pyautogui.ImageNotFoundException) as _err:
                 err = _err
                 handled = False
@@ -68,15 +85,19 @@ def _wait(name, timeout, handler, confidence, _locate=_locate):
                     sleep(1)
     raise NotFound(f"Image not found: {name}", origin=err, image_name=name)
 
-def wait_all(name, timeout=10, handler=None, confidence=0.9, key=BOX_KEY) -> list[Match]:
+def wait_all(name, timeout=10, handler=None, confidence=0.9, key=BOX_KEY, region=(0, 0, 1, 1)) -> list[Match]:
     """Wait and return all matches on the screen"""
     print(f"[wait_all] {name}")
-    def _locate_all(im, im_screen, confidence):
-        l = list(pyautogui.locateAll(im, im_screen, confidence=confidence))
-        l.sort(key=key)
+    def _locate_all(im, im_screen):
+        l = list(pyautogui.locateAll(
+            im,
+            im_screen,
+            confidence=confidence,
+            region=region_to_box(pyautogui.size(), region)
+            ))
         l = remove_similar_boxes(l)
         return [Match(im_screen, box) for box in l]
-    return _wait(name, timeout=timeout, handler=handler, confidence=confidence, _locate=_locate_all)
+    return _wait(name, timeout=timeout, handler=handler, _locate=_locate_all)
 
 def click(r, x=0.5, y=0.5, **kwargs):
     """Click on the center of the box"""
@@ -102,10 +123,10 @@ def get_text(r, offset=(0, 0), size=None) -> str:
     print(f"[get_text] {text}")
     return text
 
-def find(r, name, confidence=0.9):
+def find(r, name, confidence=0.9, region=(0, 0, 1, 1)):
     """Find an image from a matched screen"""
     with Image.open(resources / f"{name}.png") as im:
-        box = pyautogui.locate(im, r.screenshot, confidence=confidence)
+        box = pyautogui.locate(im, r.screenshot, confidence=confidence, region=region_to_box(pyautogui.size(), region))
         return Match(r.screenshot, box)
 
 def remove_similar_boxes(boxes: list[Box]):
