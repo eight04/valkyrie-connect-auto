@@ -1,5 +1,7 @@
 from contextlib import suppress
 from time import sleep
+
+from pyautogui import ImageNotFoundException
 from .auto import click, wait, get_text, find, PopupHandler
 
 def start(args):
@@ -17,14 +19,19 @@ def start(args):
 
     with suppress(KeyboardInterrupt):
         for _i in range(args.loop):
-            r = wait("drop-double", timeout=300, handler=h)
-            text = get_text(r, offset=(110, 44), size=(56, 18))
+            r = wait("challenge-again", timeout=300, handler=h)
             try:
-                n = int(text)
-            except ValueError:
+                double = find(r, "drop-double")
+            except ImageNotFoundException:
                 pass
             else:
-                if n <= args.double_drop_potion:
-                    click(r)
-            click(find(r, "challenge-again"))
+                text = get_text(double, offset=(110, 44), size=(56, 18))
+                try:
+                    n = int(text)
+                except ValueError:
+                    pass
+                else:
+                    if n <= args.double_drop_potion:
+                        click(r)
+            click(r)
             sleep(5)
