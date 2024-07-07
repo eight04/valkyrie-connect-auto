@@ -26,12 +26,13 @@ def start(args):
                 pass
             else:
                 text = get_text(double, offset=(110, 44), size=(56, 18))
+                # breakpoint()
                 try:
                     n = int(text)
                 except ValueError:
                     pass
                 else:
                     if n <= args.double_drop_potion:
-                        click(r)
+                        click(double)
             click(r)
             sleep(5)
