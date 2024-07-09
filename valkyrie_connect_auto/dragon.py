@@ -17,6 +17,10 @@ def start(args):
         click(r)
         sleep(0.5)
 
+    @h.add("red-level", region=(1/3, 3/4, 2/3, 1))
+    def _(r):
+        click(r)
+
     @h.add("battle-join-error")
     @h.add("battle-join-error-2")
     def _(m):
