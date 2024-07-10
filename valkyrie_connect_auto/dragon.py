@@ -42,13 +42,13 @@ def loop(handler):
     try:
         find(r, "dragon-create-cd", confidence=0.7)
     except pyautogui.ImageNotFoundException:
-        start_create(r)
+        start_create(r, handler)
     else:
         start_join(r)
 
-def start_create(r):
+def start_create(r, handler):
     click(find(r, "dragon-create"))
-    r_multi = wait("multi")
+    r_multi = wait("multi", handler=handler)
     click(find(r_multi, "bonus"))
     third_opt = None
     r_unselect = None
