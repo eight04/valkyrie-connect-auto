@@ -81,9 +81,11 @@ def _wait(name, timeout, handler, _locate: Callable[[Image.Image, Image.Image], 
                 handled = False
                 if handler:
                     handled = handler.handle(Match(im_screen, None))
-                    end_time = datetime.now() + timedelta(seconds=timeout)
                 if not handled:
                     sleep(1)
+                else:
+                    end_time = datetime.now() + timedelta(seconds=timeout)
+
     raise NotFound(f"Image not found: {name}", origin=err, image_name=name)
 
 def wait_all(name, timeout=10, handler=None, confidence=0.9, key=BOX_KEY, region=(0, 0, 1, 1)) -> list[Match]:
