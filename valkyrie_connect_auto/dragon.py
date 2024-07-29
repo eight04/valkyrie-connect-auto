@@ -81,6 +81,12 @@ def start_join(r):
         click(m, y=0.8)
         click(wait_all("battle-join", key=lambda b: b.top)[-1])
 
+    # if the previous click clicked on the level up screen, we have to click again 
+    # FIXME: this is not the last battle
+    @h.add("battle-join")
+    def _(m):
+        click(m)
+
     click(wait("join", handler=h))
     click(wait("cross-swords"))
     sleep(5)

@@ -14,12 +14,19 @@ def start(args):
     @h.add("battle-start")
     def _(r):
         click(r)
-        click(wait("start-current-member"), x=2/3, y=7/8, clicks=2)
+
+        # the button is not cliackable during fade in animation
+        h = PopupHandler()
+        @h.add("battle-start")
+        def _(r):
+            click(r)
+
+        click(wait("start-current-member", handler=h), x=2/3, y=7/8, clicks=2)
         sleep(5)
 
     with suppress(KeyboardInterrupt):
         for _i in range(args.loop):
-            r = wait("challenge-again", timeout=300, handler=h)
+            r = wait("challenge-again", timeout=10*60, handler=h)
             try:
                 double = find(r, "drop-double")
             except ImageNotFoundException:
