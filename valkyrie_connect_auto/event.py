@@ -6,6 +6,11 @@ from .auto import click, wait, get_text, find, PopupHandler
 
 def start(args):
     h = PopupHandler()
+
+    @h.add("out-of-ap")
+    def _(r):
+        raise Exception("Out of AP")
+
     @h.add("retry")
     def _(r):
         click(r)

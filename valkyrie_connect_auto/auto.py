@@ -106,8 +106,15 @@ def click(r, x=0.5, y=0.5, **kwargs):
     """Click on the center of the box"""
     target_x = r.box.left + r.box.width * x
     target_y = r.box.top + r.box.height * y
-    print(f"[click] ({target_x}, {target_y})")
-    pyautogui.click(target_x, target_y, **kwargs)
+    while True:
+        try:
+            print(f"[click] ({target_x}, {target_y})")
+            pyautogui.click(target_x, target_y, **kwargs)
+        except pyautogui.FailSafeException:
+            print("[click] Failsafe")
+            sleep(0.25)
+            continue
+        break
     sleep(0.25)
 
 def box_to_bound(box: Box, offset, size) -> tuple:
