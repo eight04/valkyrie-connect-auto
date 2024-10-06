@@ -109,6 +109,8 @@ def click(r, x=0.5, y=0.5, **kwargs):
     while True:
         try:
             print(f"[click] ({target_x}, {target_y})")
+            # NOTE: on Windows 10 + AHK, it is possible to send click to background via ControlClick.
+            # However, x/y parameters are ignored and the position is always the physical posistion of the cursor.
             pyautogui.click(target_x, target_y, **kwargs)
         except pyautogui.FailSafeException:
             print("[click] Failsafe")
