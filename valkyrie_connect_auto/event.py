@@ -11,6 +11,10 @@ def start(args):
     def _(r):
         raise Exception("Out of AP")
 
+    @h.add("inventory-full")
+    def _(r):
+        raise Exception("Inventory Full")
+
     @h.add("retry")
     def _(r):
         click(r)
