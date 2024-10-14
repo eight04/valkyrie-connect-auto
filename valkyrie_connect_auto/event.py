@@ -11,7 +11,7 @@ def start(args):
     def _(r):
         raise Exception("Out of AP")
 
-    @h.add("inventory-full")
+    @h.add("inventory-full", confidence=0.8)
     def _(r):
         raise Exception("Inventory Full")
 
