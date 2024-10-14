@@ -10,6 +10,11 @@ STAGES = [
     "crystal"
     ]
 
+HEADER_HEIGHT_MAXIMIZED = 29
+HEADER_HEIGHT = 38
+BORDER = 1
+SHADOW = 8
+
 def cli():
     parser = ArgumentParser(prog="valkyrie-connect-auto", description="Valkyrie Connect Automation")
     parser.add_argument("stage", choices=STAGES, help="Stage")
@@ -18,4 +23,10 @@ def cli():
     args = parser.parse_args()
 
     mod = import_module(f".{args.stage}", __package__)
+    import pyautogui
+    w = pyautogui.getWindowsWithTitle("Valkyrie Connect WW")[0]
+    w.activate()
+    w.resizeTo(1366 + 2*BORDER + 2* SHADOW, 768 - HEADER_HEIGHT_MAXIMIZED + HEADER_HEIGHT + BORDER + SHADOW)
+    w.moveTo(0, 0)
+    print("move window")
     mod.start(args)
