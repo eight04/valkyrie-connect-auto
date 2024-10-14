@@ -127,8 +127,12 @@ def get_text(r, offset=(0, 0), size=None) -> str:
     import pytesseract
     if not size:
         size = (r.box.width, r.box.height)
+    cropped_image = r.screenshot.crop(box_to_bound(r.box, offset, size))
+    # import tempfile
+    # with tempfile.TemporaryFile(prefix="_tesseract_", suffix=".png", delete=False) as f:
+    #     cropped_image.save(f, format="png")
     try:
-        text = pytesseract.image_to_string(r.screenshot.crop(box_to_bound(r.box, offset, size)), config="--psm 6")
+        text = pytesseract.image_to_string(cropped_image, config="--psm 7")
     except pytesseract.pytesseract.TesseractNotFoundError:
         print("[get_text] Tesseract not available")
         return ""
