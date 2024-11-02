@@ -7,7 +7,8 @@ STAGES = [
     "event",
     "dragon",
     "summon",
-    "crystal"
+    "crystal",
+    "click"
     ]
 
 HEADER_HEIGHT_MAXIMIZED = 29
@@ -27,6 +28,5 @@ def cli():
     w = pyautogui.getWindowsWithTitle("Valkyrie Connect WW")[0]
     w.activate()
     w.resizeTo(1366 + 2*BORDER + 2* SHADOW, 768 - HEADER_HEIGHT_MAXIMIZED + HEADER_HEIGHT + BORDER + SHADOW)
-    w.moveTo(0, 0)
-    print("move window")
+    w.moveTo(0 - SHADOW - BORDER, 0)
     mod.start(args)
