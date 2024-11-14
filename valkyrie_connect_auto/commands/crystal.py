@@ -1,7 +1,7 @@
 from contextlib import suppress
 from time import sleep
 
-from .auto import click, wait
+from ..auto import click, wait
 
 def start(args):
     with suppress(KeyboardInterrupt):

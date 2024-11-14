@@ -2,7 +2,7 @@ from contextlib import suppress
 from time import sleep
 
 from pyautogui import ImageNotFoundException
-from .auto import click, wait, get_text, find, PopupHandler
+from ..auto import click, wait, get_text, find, PopupHandler
 
 def start(args):
     h = PopupHandler()

@@ -9,6 +9,7 @@ disable=
   global-statement,
   import-outside-toplevel,
   inconsistent-return-statements,
+  invalid-name,
   line-too-long,
   missing-docstring,
   missing-final-newline,
@@ -16,6 +17,7 @@ disable=
   redefined-outer-name, redefined-builtin,
   suppressed-message,
   trailing-whitespace, too-many-statements, too-many-return-statements,
+  trailing-newlines,
   unused-argument,
   unnecessary-lambda-assignment,
 

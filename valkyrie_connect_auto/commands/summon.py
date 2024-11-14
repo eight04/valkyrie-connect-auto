@@ -1,4 +1,4 @@
-from .auto import click, wait, PopupHandler
+from ..auto import click, wait, PopupHandler
 
 def start(args):
     h = PopupHandler()

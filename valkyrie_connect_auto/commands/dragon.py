@@ -1,7 +1,7 @@
 from time import sleep
 
 import pyautogui
-from .auto import click, wait, find, wait_all, PopupHandler, NotFound
+from ..auto import click, wait, find, wait_all, PopupHandler, NotFound
 
 def start(args):
     h = PopupHandler()
