@@ -23,7 +23,7 @@ def cli():
     parser.add_argument("-l", "--loop", type=int, default=999, help="Repeat times")
     args = parser.parse_args()
 
-    mod = import_module(f".{args.stage}", __package__)
+    mod = import_module(f".commands.{args.stage}", __package__)
     from .window import Window
     with Window("Valkyrie Connect WW") as w:
         w.move(

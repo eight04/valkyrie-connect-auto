@@ -22,6 +22,7 @@ PyRect==0.2.0
 PyScreeze==0.1.30
 pytesseract==0.3.10
 pytweening==1.2.0
+pywin32==308
 pyxcute==0.8.1
 semver==2.13.0
 Send2Trash==1.8.3

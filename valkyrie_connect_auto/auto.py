@@ -8,12 +8,24 @@ import pyautogui
 import pyscreeze
 from PIL import Image
 from pyscreeze import Box
+from win32con import TRUETYPE_FONTTYPE
 
 resources = importlib.resources.files("valkyrie_connect_auto.resources")
 
-Match = namedtuple("WaitResult", ["screenshot", "box"])
+class Match:
+    def __init__(self, screenshot, top, left, width, height):
+        self.screenshot = screenshot
+        self.top = top
+        self.left = left
+        self.width = width
+        self.height = height
 
-BOX_KEY = lambda b: (b.left, b.top)
+    def __lt__(self, other):
+        if self.left < other.left:
+            return True
+        if self.left > other.left:
+            return False
+        return self.top < other.top
 
 class NotFound(ValueError):
     def __init__(self, msg, image_name=None, origin=None):
@@ -63,6 +75,7 @@ def wait(name, timeout=10, handler=None, confidence=0.9, region=(0, 0, 1, 1)) ->
             confidence=confidence,
             region=region_to_box(pyautogui.size(), region)
             )
+        return Match(im_screen, **box._asdict())
         return Match(im_screen, box)
     return _wait(name, timeout=timeout, handler=handler, _locate=_locate)
 
