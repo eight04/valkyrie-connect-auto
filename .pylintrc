@@ -4,6 +4,7 @@ disable=
   anomalous-backslash-in-string,
   broad-exception-raised,
   consider-using-f-string,
+  c-extension-no-member,
   duplicate-code,
   fixme,
   global-statement,
