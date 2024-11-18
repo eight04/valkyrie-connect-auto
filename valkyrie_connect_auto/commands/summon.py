@@ -1,22 +1,23 @@
-from ..auto import click, wait, PopupHandler
+from ..auto import PopupHandler
 
 def start(args):
+    w = args.w
     h = PopupHandler()
 
     @h.add("summon-reward")
     def _(r):
-        click(r, 0, 0)
+        w.click(r, offset="0 0")
 
-    @h.add("skip", region=(0.8, 0, 1, 0.2))
+    @h.add("skip", padding="0 0 80% 80%")
     def _(r):
-        click(r)
+        w.click(r)
 
     for _i in range(args.loop):
         try:
-            loop(h)
+            loop(w, h)
         except KeyboardInterrupt:
             break
 
-def loop(handler):
-    click(wait("summon-again", handler=handler, timeout=300))
-    click(wait("summon-confirm"), x=2/3, y=7/8)
+def loop(w, handler):
+    w.click(w.wait("summon-again", handler=handler, timeout=300))
+    w.click(w.wait("summon-confirm"), offset="66% 87%")

@@ -113,8 +113,8 @@ class Window:
         # Users have to focus and click other windows manually
         win32gui.SetActiveWindow(self.hwnd)
         lparam = win32api.MAKELONG(
-            post[0] - self.left,
-            post[1] - self.top
+            pos[0] - self.left,
+            pos[1] - self.top
             )
         win32gui.PostMessage(self.hwnd, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, lparam)
         time.sleep(0.020)
