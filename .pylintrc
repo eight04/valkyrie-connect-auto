@@ -3,8 +3,8 @@ disable=
   abstract-method,
   anomalous-backslash-in-string,
   broad-exception-raised,
-  consider-using-f-string,
   c-extension-no-member,
+  consider-using-f-string,
   duplicate-code,
   fixme,
   global-statement,
@@ -17,10 +17,13 @@ disable=
   multiple-imports,
   redefined-outer-name, redefined-builtin,
   suppressed-message,
-  trailing-whitespace, too-many-statements, too-many-return-statements,
+  too-many-positional-arguments,
+  too-many-return-statements,
+  too-many-statements,
   trailing-newlines,
-  unused-argument,
+  trailing-whitespace,
   unnecessary-lambda-assignment,
+  unused-argument,
 
 [REPORTS]
 reports=no

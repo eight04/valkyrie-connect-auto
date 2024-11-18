@@ -2,11 +2,14 @@ import time
 from ctypes import windll
 import ctypes
 
-import win32gui
-import win32ui
-import win32con
-import win32api
-import win32process
+try:
+    import win32gui
+    import win32ui
+    import win32con
+    import win32api
+    import win32process
+except ImportError:
+    pass
 
 from PIL.Image import frombuffer as open_image_frombuffer
 import pyautogui
