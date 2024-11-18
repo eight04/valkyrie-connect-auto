@@ -98,17 +98,24 @@ class Window:
         self.thread_input_attached = True
 
     # https://github.com/AutoHotkey/AutoHotkey/blob/v2.0/source/lib/win.cpp#L335
-    def click(self, box, offset=Offset("50%")):
-        if isinstance(offset, str):
-            offset = Offset(offset)
-        x, y = offset(box)
-        print(f"[click] ({x}, {y})")
-        pyautogui.moveTo(x, y)
+    def click(self, box=None, offset=Offset("50%"), pos=None):
+        if not pos:
+            if box:
+                if isinstance(offset, str):
+                    offset = Offset(offset)
+                pos = offset(box)
+            else:
+                pos = pyautogui.position()
+        print(f"[click] {pos}")
+        pyautogui.moveTo(*pos)
         self.attach_thread_input()
         # NOTE: this may lift the window to the foreground at the first click
         # Users have to focus and click other windows manually
         win32gui.SetActiveWindow(self.hwnd)
-        lparam = win32api.MAKELONG(x, y)
+        lparam = win32api.MAKELONG(
+            post[0] - self.left,
+            post[1] - self.top
+            )
         win32gui.PostMessage(self.hwnd, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, lparam)
         time.sleep(0.020)
         win32gui.PostMessage(self.hwnd, win32con.WM_LBUTTONUP, win32con.MK_LBUTTON, lparam)
