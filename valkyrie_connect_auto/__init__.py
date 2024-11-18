@@ -11,10 +11,7 @@ STAGES = [
     "click"
     ]
 
-HEADER_HEIGHT_MAXIMIZED = 29
-HEADER_HEIGHT = 38
-BORDER = 1
-SHADOW = 8
+CLIENT_SIZE = (1366, 745)
 
 def cli():
     parser = ArgumentParser(prog="valkyrie-connect-auto", description="Valkyrie Connect Automation")
@@ -23,10 +20,8 @@ def cli():
     parser.add_argument("-l", "--loop", type=int, default=999, help="Repeat times")
     args = parser.parse_args()
 
-    mod = import_module(f".{args.stage}", __package__)
-    import pyautogui
-    w = pyautogui.getWindowsWithTitle("Valkyrie Connect WW")[0]
-    w.activate()
-    w.resizeTo(1366 + 2*BORDER + 2* SHADOW, 768 - HEADER_HEIGHT_MAXIMIZED + HEADER_HEIGHT + BORDER + SHADOW)
-    w.moveTo(0 - SHADOW - BORDER, 0)
-    mod.start(args)
+    mod = import_module(f".commands.{args.stage}", __package__)
+    from .window import Window
+    with Window("Valkyrie Connect WW", size=CLIENT_SIZE) as w:
+        args.w = w
+        mod.start(args)

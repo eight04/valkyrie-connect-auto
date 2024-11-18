@@ -1,11 +1,10 @@
 from contextlib import suppress
 from time import sleep
 
-from .auto import click, wait
-
 def start(args):
+    w = args.w
     with suppress(KeyboardInterrupt):
         for _i in range(args.loop):
-            click(wait("retry", timeout=10*60))
-            click(wait("retry-confirm"), x=3/4, y=3/4)
+            w.click(w.wait("retry", timeout=10*60))
+            w.click(w.wait("retry-confirm"), offset="75% 75%")
             sleep(5)

@@ -22,7 +22,7 @@ keywords = []
 license = {text = "MIT"}
 readme = "README.md"
 urls = {Homepage = "https://github.com/eight04/valkyrie-connect-auto"}
-dependencies = ["PyAutoGUI~=0.9.54", "opencv-python~=4.10", "pillow~=10.3", "pytesseract~=0.3.10"]
+dependencies = ["PyAutoGUI~=0.9.54", "opencv-python~=4.10", "pillow~=11.0", "pytesseract~=0.3.13", "pywin32>=308; sys_platform == 'win32'"]
 
 [project.scripts]
 valkyrie-connect-auto = "valkyrie_connect_auto:cli"
