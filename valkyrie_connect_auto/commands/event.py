@@ -2,9 +2,12 @@ from contextlib import suppress
 from time import sleep
 
 from pyautogui import ImageNotFoundException
-from ..auto import click, wait, get_text, find, PopupHandler
+from pyscreeze import Box
+
+from ..auto import get_text, PopupHandler
 
 def start(args):
+    w = args.w
     h = PopupHandler()
 
     @h.add("out-of-ap")
@@ -16,32 +19,36 @@ def start(args):
         raise Exception("Inventory Full")
 
     @h.add("retry")
-    def _(r):
-        click(r)
+    def _(match):
+        w.click(match)
         sleep(.5)
 
     @h.add("battle-start")
     def _(r):
-        click(r)
+        w.click(r)
 
         # the button is not cliackable during fade in animation
         h = PopupHandler()
         @h.add("battle-start")
         def _(r):
-            click(r)
+            w.click(r)
 
-        click(wait("start-current-member", handler=h), x=2/3, y=7/8, clicks=2)
+        match = w.wait("start-current-member", handler=h)
+        for _ in range(2):
+            w.click(match, offset="66% 87%")
         sleep(5)
 
     with suppress(KeyboardInterrupt):
         for _i in range(args.loop):
-            r = wait("challenge-again", timeout=10*60, handler=h)
+            match = w.wait("challenge-again", timeout=10*60, handler=h)
             try:
-                double = find(r, "drop-double")
+                double = match.screenshot.find("drop-double")
             except ImageNotFoundException:
                 pass
             else:
-                text = get_text(double, offset=(110, 44), size=(56, 18))
+                text = get_text(double, region=Box(110, 44, 56, 18)).strip()
+                if text.endswith("]") or text.endswith(")"):
+                    text = text[:-1]
                 # breakpoint()
                 try:
                     n = int(text)
@@ -49,6 +56,6 @@ def start(args):
                     pass
                 else:
                     if n <= args.double_drop_potion:
-                        click(double)
-            click(r)
+                        w.click(double)
+            w.click(match)
             sleep(5)

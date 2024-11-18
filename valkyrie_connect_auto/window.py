@@ -1,5 +1,6 @@
 import time
 from ctypes import windll
+import ctypes
 
 import win32gui
 import win32ui
@@ -7,7 +8,7 @@ import win32con
 import win32api
 import win32process
 
-from PIL import Image
+from PIL.Image import frombuffer as open_image_frombuffer
 import pyautogui
 
 from .auto import ScreenshotChecker, Screenshot, Offset
@@ -28,11 +29,23 @@ class WindowScreenshotChecker(ScreenshotChecker):
             )
 
 class Window:
-    def __init__(self, title):
+    def __init__(self, title, size):
         self.hwnd = win32gui.FindWindow(None, title)
         if not self.hwnd:
             raise ValueError(f"Window not found: {title}")
-        self.update_box()
+        if size:
+            rect = ctypes.wintypes.RECT(0, 0, *size)
+            window_style = win32gui.GetWindowLong(self.hwnd, win32con.GWL_STYLE)
+            ctypes.windll.user32.AdjustWindowRect(ctypes.byref(rect), window_style, False)
+            self.move(
+                0,
+                0,
+                rect.right - rect.left,
+                rect.bottom - rect.top
+                )
+            assert win32gui.GetClientRect(self.hwnd)[2:] == size
+        else:
+            self.update_box()
         self.hwndDC = win32gui.GetWindowDC(self.hwnd)
         self.mfcDC  = win32ui.CreateDCFromHandle(self.hwndDC)
         self.saveDC = self.mfcDC.CreateCompatibleDC()
@@ -57,7 +70,7 @@ class Window:
             raise ValueError("PrintWindow failed")
         bmpinfo = self.saveBitMap.GetInfo()
         bmpstr = self.saveBitMap.GetBitmapBits(True)
-        self.screenshot = Image.frombuffer(
+        self.screenshot = open_image_frombuffer(
             'RGB',
             (bmpinfo['bmWidth'], bmpinfo['bmHeight']),
             bmpstr, 'raw', 'BGRX', 0, 1)
@@ -89,6 +102,7 @@ class Window:
         if isinstance(offset, str):
             offset = Offset(offset)
         x, y = offset(box)
+        print(f"[click] ({x}, {y})")
         pyautogui.moveTo(x, y)
         self.attach_thread_input()
         # NOTE: this may lift the window to the foreground at the first click

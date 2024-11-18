@@ -4,10 +4,12 @@ import functools
 
 import pyautogui
 import pyscreeze
-from PIL import Image
+from PIL.Image import Image, open as open_image
 from pyscreeze import Box
 
 resources = importlib.resources.files("valkyrie_connect_auto.resources")
+
+AllImageNotFoundException = (pyautogui.ImageNotFoundException, pyscreeze.ImageNotFoundException)
 
 class Offset:
     def __init__(self, text):
@@ -40,8 +42,11 @@ class Match:
             return False
         return self.top < other.top
 
-class NotFound(pyscreeze.ImageNotFoundException, pyautogui.ImageNotFoundException):
-    pass
+class NotFound(ValueError):
+    def __init__(self, msg, image_name=None, origin=None):
+        super().__init__(msg)
+        self.image_name = image_name
+        self.origin = origin
 
 class PopupHandler:
     def __init__(self):
@@ -53,15 +58,15 @@ class PopupHandler:
             return f
         return _
 
-    def handle(self, r):
+    def handle(self, screenshot):
         for (name, f, kwargs) in self.handlers:
             try:
-                r = find(r, name, **kwargs)
-            except NotFound:
+                match = find(screenshot, name, **kwargs)
+            except AllImageNotFoundException:
                 pass
             else:
                 print(f"[PopupHandler] {name}")
-                f(r)
+                f(match)
                 return True
         return False
 
@@ -72,6 +77,12 @@ class Screenshot:
         self.left = left
         self.width = width
         self.height = height
+
+    def find(self, *args, **kwargs):
+        return find(self, *args, **kwargs)
+
+    def find_all(self, *args, **kwargs):
+        return find_all(self, *args, **kwargs)
 
 def apply_unit(base, token):
     value, unit = token
@@ -125,51 +136,26 @@ class ScreenshotChecker:
         return self._wait(self.locate_all)
 
     def _wait(self, _locate):
+        print(f"[wait] {self.needle_image}")
         start = time.time()
-        with Image.open(resources / f"{self.needle_image}.png") as needle:
+        with open_image(resources / f"{self.needle_image}.png") as needle:
             while True:
                 screenshot = self.get_screenshot()
                 try:
                     return _locate(screenshot, needle)
-                except NotFound as e:
+                except AllImageNotFoundException as e:
                     if time.time() - start > self.timeout:
-                        raise e
+                        raise NotFound(f"Failed to find {self.needle_image}", self.needle_image, e) from e
                     if self.handler:
                         if self.handler.handle(screenshot):
                             start = time.time()
                     time.sleep(self.interval)
 
     def locate(self, screenshot, image):
-        box = pyautogui.locate(
-            image,
-            screenshot.image,
-            confidence=self.confidence,
-            region=padding_to_region(self.padding, screenshot.width, screenshot.height)
-            )
-        assert box
-        return Match(
-            screenshot,
-            top=screenshot.top + box.top,
-            left=screenshot.left + box.left,
-            width=box.width,
-            height=box.height
-            )
+        return screenshot.find(image, confidence=self.confidence, padding=self.padding)
 
     def locate_all(self, screenshot, image):
-        l = list(pyautogui.locateAll(
-            image,
-            screenshot.image,
-            confidence=self.confidence,
-            region=padding_to_region(self.padding, screenshot.width, screenshot.height)
-            ))
-        l = remove_similar_boxes(l)
-        return [Match(
-            screenshot,
-            top=screenshot.top + box.top,
-            left=screenshot.left + box.left,
-            width=box.width,
-            height=box.height
-            ) for box in l]
+        return screenshot.find_all(image, confidence=self.confidence, padding=self.padding)
 
 
 def wait(*args, **kwargs) -> Match:
@@ -210,6 +196,7 @@ def get_text(match, region: Box | None = None) -> str:
         match.left + region.left + region.width - match.screenshot.left,
         match.top + region.top + region.height - match.screenshot.top
         ))
+    # cropped_image.save("cropped.png")
     try:
         text = pytesseract.image_to_string(cropped_image, config="--psm 7")
     except pytesseract.pytesseract.TesseractNotFoundError:
@@ -218,12 +205,46 @@ def get_text(match, region: Box | None = None) -> str:
     print(f"[get_text] {text}")
     return text
 
-def find(screenshot, name, confidence=0.9, padding=None):
+def find(screenshot, image: Image | str, confidence=0.9, padding=None):
     """Find an image from a matched screen"""
-    with Image.open(resources / f"{name}.png") as im:
-        box = pyautogui.locate(im, screenshot.image, confidence=confidence, region=padding_to_region(padding, screenshot.width, screenshot.height))
-        assert box
-        return Match(screenshot, **box._asdict())
+    if not isinstance(image, Image):
+        with open_image(resources / f"{image}.png") as im:
+            return find(screenshot, im, confidence, padding)
+    box = pyautogui.locate(
+        image,
+        screenshot.image,
+        confidence=confidence,
+        region=padding_to_region(padding, screenshot.width, screenshot.height)
+        )
+    assert box
+    return Match(
+        screenshot,
+        top=screenshot.top + box.top,
+        left=screenshot.left + box.left,
+        width=box.width,
+        height=box.height
+        )
+
+def find_all(screenshot, image: Image | str, confidence=0.9, padding=None):
+    """Find all images from a matched screen"""
+    if not isinstance(image, Image):
+        with open_image(resources / f"{image}.png") as im:
+            return find_all(screenshot, im, confidence, padding)
+    boxes = pyautogui.locateAll(
+        image,
+        screenshot.image,
+        confidence=confidence,
+        region=padding_to_region(padding, screenshot.width, screenshot.height)
+        )
+    boxes = list(boxes)
+    boxes = remove_similar_boxes(boxes)
+    return [Match(
+        screenshot,
+        top=screenshot.top + box.top,
+        left=screenshot.left + box.left,
+        width=box.width,
+        height=box.height
+        ) for box in boxes]
 
 def remove_similar_boxes(boxes: list[Box]):
     if not boxes:

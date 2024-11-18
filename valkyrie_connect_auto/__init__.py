@@ -11,10 +11,7 @@ STAGES = [
     "click"
     ]
 
-HEADER_HEIGHT_MAXIMIZED = 29
-HEADER_HEIGHT = 38
-BORDER = 1
-SHADOW = 8
+CLIENT_SIZE = (1366, 745)
 
 def cli():
     parser = ArgumentParser(prog="valkyrie-connect-auto", description="Valkyrie Connect Automation")
@@ -25,12 +22,6 @@ def cli():
 
     mod = import_module(f".commands.{args.stage}", __package__)
     from .window import Window
-    with Window("Valkyrie Connect WW") as w:
-        w.move(
-            0 - SHADOW - BORDER,
-            0,
-            1366 + 2*BORDER + 2* SHADOW,
-            768 - HEADER_HEIGHT_MAXIMIZED + HEADER_HEIGHT + BORDER + SHADOW
-            )
+    with Window("Valkyrie Connect WW", size=CLIENT_SIZE) as w:
         args.w = w
         mod.start(args)
